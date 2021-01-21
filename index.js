@@ -1,7 +1,6 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
-const { endianness } = require("os");
-const { inherits } = require("util");
+const cTable = require("console.table");
 
 const connection = mysql.createConnection({
     host: "localhost",
