@@ -16,22 +16,48 @@ const connection = mysql.createConnection({
   
   connection.connect(function(err) {
     if (err) throw err;
-    viewEmployees();
+    console.log("connected as id " + connection.threadId + "\n");
+    //ascii art console.log
+    init();
   });
 
-const init = () => {
 
-}
 
 const viewEmployees = () => {
     const queryString = `SELECT * FROM employee`;
     connection.query(queryString, (err, data) => {
         if (err) throw err;
         console.table(data);
+        init();
     })
 }
+
+const init = () => {
+    inquirer.prompt([
+        {
+        type: "list",
+        message: "What would you like to do?",
+        choices: ["View All Employees", "Quit Employee Tracker"],
+        name: "userChoice"
+        }
+        
+    ]).then(({ userChoice }) => {
+        switch(userChoice) {
+            case "View All Employees":
+            viewEmployees();
+            break;
+
+            default:
+            end();
+        }
+        
+    })
+
+}
+
 //ends connection to server
-const exit = () => {
+const end = () => {
+    console.log("Thanks for using Employee Tracker!");
     connection.end();
 }
 
