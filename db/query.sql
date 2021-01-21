@@ -11,10 +11,10 @@ INNER JOIN role r ON r.id = e.role_id
 LEFT JOIN department d ON d.id = r.department_id
 LEFT JOIN employee m ON e.manager_id = m.id;
 
--- shows employee by department
-SELECT employee.id, employee.first_name, employee.last_name, role.title 
-FROM employee 
-LEFT JOIN role on employee.role_id = role.id 
-LEFT JOIN department department on role.department_id = department.id 
-WHERE department.id = 1;
+-- shows employee by deparment 
+SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
+FROM employee e 
+LEFT JOIN role r on e.role_id = r.id 
+LEFT JOIN department d on r.department_id = d.id 
+WHERE d.id = 1;
 

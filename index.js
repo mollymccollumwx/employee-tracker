@@ -38,7 +38,6 @@ connection.connect(function (err) {
 
 // * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
 
-
 //view a table of all employees and their information
 const viewEmployees = () => {
   const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title as Role, d.name AS Department, CONCAT(m.first_name, " ", m.last_name) as Manager
@@ -53,6 +52,19 @@ const viewEmployees = () => {
   });
 };
 
+const viewEmployeesByDepartment = () => {
+    const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
+    FROM employee e 
+    LEFT JOIN role r on e.role_id = r.id 
+    LEFT JOIN department d on r.department_id = d.id 
+    WHERE d.id = 1;`;
+    connection.query(queryString, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+      });
+}
+
 //starts the prompt and provides switch cases to call functions based on user input
 const init = () => {
   inquirer
@@ -60,7 +72,7 @@ const init = () => {
       {
         type: "list",
         message: "What would you like to do?",
-        choices: ["View All Employees", "Quit Employee Tracker"],
+        choices: ["View All Employees", "View All Employees By Department", "Quit Employee Tracker"],
         name: "userChoice",
       },
     ])
@@ -69,6 +81,10 @@ const init = () => {
         case "View All Employees":
           viewEmployees();
           break;
+
+        case "View All Employees By Department":
+        viewEmployeesByDepartment();
+        break;
 
         default:
           end();
