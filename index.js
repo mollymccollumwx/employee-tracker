@@ -16,7 +16,17 @@ const connection = mysql.createConnection({
 connection.connect(function (err) {
   if (err) throw err;
   console.log("connected as id " + connection.threadId + "\n");
-  //ascii art console.log
+  console.log(`
+  ____ ____ ____ ____ ____ ____ ____ ____ 
+  ||E |||m |||p |||l |||o |||y |||e |||e ||
+  ||__|||__|||__|||__|||__|||__|||__|||__||
+  |/__\|/__\|/__\|/__\|/__\|/__\|/__\|/__\|
+   ____ ____ ____ ____ ____ ____ ____      
+  ||T |||r |||a |||c |||k |||e |||r ||     
+  ||__|||__|||__|||__|||__|||__|||__||     
+  |/__\|/__\|/__\|/__\|/__\|/__\|/__\|     
+  
+  `);
   init();
 });
 
@@ -53,16 +63,65 @@ const viewEmployees = () => {
 };
 
 const viewEmployeesByDepartment = () => {
-    const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
+  const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
     FROM employee e 
     LEFT JOIN role r on e.role_id = r.id 
     LEFT JOIN department d on r.department_id = d.id 
     WHERE d.id = 1;`;
-    connection.query(queryString, (err, data) => {
-        if (err) throw err;
-        console.table(data);
-        init();
+  connection.query(queryString, (err, data) => {
+    if (err) throw err;
+    console.table(data);
+    init();
+  });
+};
+
+const updateEmployeeRole = () => {
+  const queryEmployee = `SELECT * FROM employee`;
+  connection.query(queryEmployee, (err, data) => {
+    if (err) throw err;
+    const employees = data.map((employee) => {
+      return {
+        name: `${employee.first_name} ${employee.last_name}`,
+        value: employee.id,
+      };
+    });
+    const queryRole = `SELECT * FROM role`;
+    connection.query(queryRole, (err, data) => {
+      if (err) throw err;
+      const roles = data.map((role) => {
+        return {
+          name: role.title,
+          value: role.id,
+        };
       });
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            message: "Which employee do you want to update?",
+            name: "employee",
+            choices: employees,
+          },
+          {
+            type: "list",
+            message: "What do you want the employee's role to be?",
+            name: "role",
+            choices: roles,
+          },
+        ])
+        .then(({ employee, role }) => {
+          const queryString = `UPDATE employee SET role_id = ? WHERE id = ?`;
+          connection.query(queryString, [role, employee], (err, data) => {
+            if (err) throw err;
+            init();
+          });
+        });
+    });
+  });
+};
+
+const addEmployee = () => {
+    console.log("Employee has been added");
 }
 
 //starts the prompt and provides switch cases to call functions based on user input
@@ -72,7 +131,14 @@ const init = () => {
       {
         type: "list",
         message: "What would you like to do?",
-        choices: ["View All Employees", "View All Employees By Department", "Quit Employee Tracker"],
+        choices: [
+          "View All Employees",
+          "View All Employees By Department",
+          "View All Roles",
+          "Update Employee Role",
+          "Add Employee",
+          "Quit Employee Tracker",
+        ],
         name: "userChoice",
       },
     ])
@@ -83,8 +149,20 @@ const init = () => {
           break;
 
         case "View All Employees By Department":
-        viewEmployeesByDepartment();
-        break;
+          viewEmployeesByDepartment();
+          break;
+
+        case "View All Roles":
+          viewRoles();
+          break;
+
+        case "Update Employee Role":
+          updateEmployeeRole();
+          break;
+
+        case "Add Employee":
+          addEmployee();
+          break;
 
         default:
           end();

@@ -18,3 +18,8 @@ LEFT JOIN role r on e.role_id = r.id
 LEFT JOIN department d on r.department_id = d.id 
 WHERE d.id = 1;
 
+-- update employee role
+UPDATE employee SET role_id = ? WHERE id = ?
+
+
+
