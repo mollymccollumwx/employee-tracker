@@ -22,9 +22,10 @@ WHERE d.id = 1;
 UPDATE employee SET role_id = ? WHERE id = ?;
 
 -- view departments
-SELECT name FROM department;
+SELECT name AS Departments FROM department;
 
 -- view roles
+SELECT title AS Roles FROM role;
 
 
 

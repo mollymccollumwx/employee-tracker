@@ -33,11 +33,7 @@ connection.connect(function (err) {
 
 // REQUIRED
 
-// Add departments, roles, employees
-
-// View departments, roles, employees
-
-// Update employee roles
+// Add departments, roles
 
 // BONUS
 
@@ -63,6 +59,7 @@ const viewEmployees = () => {
   });
 };
 
+//hard coded employees by department
 const viewEmployeesByDepartment = () => {
   const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
     FROM employee e 
@@ -71,6 +68,7 @@ const viewEmployeesByDepartment = () => {
     WHERE d.id = 1;`;
   connection.query(queryString, (err, data) => {
     if (err) throw err;
+    clear();
     console.table(data);
     init();
   });
@@ -78,14 +76,25 @@ const viewEmployeesByDepartment = () => {
 
 //view all the department
 const viewDepartments = () => {
-    const queryString = `SELECT name FROM department`;
-    connection.query(queryString, (err, data) => {
-        if (err) throw err;
-        console.table(data);
-        init();
-    })
-}
+  const queryString = `SELECT name AS Departments FROM department`;
+  connection.query(queryString, (err, data) => {
+    if (err) throw err;
+    console.table(data);
+    init();
+  });
+};
 
+//view all the roles
+const viewRoles = () => {
+  const queryString = `SELECT title AS Roles FROM role`;
+  connection.query(queryString, (err, data) => {
+    if (err) throw err;
+    console.table(data);
+    init();
+  });
+};
+
+// update an employee's role
 const updateEmployeeRole = () => {
   const queryEmployee = `SELECT * FROM employee`;
   connection.query(queryEmployee, (err, data) => {
@@ -132,24 +141,60 @@ const updateEmployeeRole = () => {
 };
 
 const addEmployee = () => {
-    inquirer.prompt([
-        {
-            type: "input", 
-            message: "What is the new employee's first name?",
-            name: "first_name",
-        }, 
-        {
-            type: "input", 
-            message: "What is the new employee's last name?",
-            name: "last_name",  
-        },
-        {
-            
-        }
-    ])
-    console.log("Employee has been added!");
-}
+    const queryEmployee = `SELECT * FROM employee`;
+    connection.query(queryEmployee, (err, data) => {
+      if (err) throw err;
+      const employees = data.map((employee) => {
+        return {
+          name: `${employee.first_name} ${employee.last_name}`,
+          value: employee.id,
+        };
+      });
+      const queryRole = `SELECT * FROM role`;
+      connection.query(queryRole, (err, data) => {
+        if (err) throw err;
+        const roles = data.map((role) => {
+          return {
+            name: role.title,
+            value: role.id,
+          };
+        });
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              message: "What is the new employee's first name?",
+              name: "first_name",
+            },
+            {
+                type: "input",
+                message: "What is the new employee's last name?",
+                name: "last_name",
+            },
+            {
+                type: "list",
+                message: "What is the new employee's role?",
+                name: "role",
+                choices: roles,
+            },
+            {
+                type: "list",
+                message: "Who is the new employee's manager?",
+                name: "manager",
+                choices: employees,
+            },
 
+          ])
+          .then(({ first_name, last_name, role, manager }) => {
+            const queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`;
+            connection.query(queryString, [first_name, last_name, role, manager], (err, data) => {
+              if (err) throw err;
+              init();
+            });
+          });
+      });
+    });
+  };
 
 //starts the prompt and provides switch cases to call functions based on the user selection
 const init = () => {
