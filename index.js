@@ -1,6 +1,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const cTable = require("console.table");
+const clear = require("clear");
 
 const connection = mysql.createConnection({
   host: "localhost",
@@ -75,6 +76,16 @@ const viewEmployeesByDepartment = () => {
   });
 };
 
+//view all the department
+const viewDepartments = () => {
+    const queryString = `SELECT name FROM department`;
+    connection.query(queryString, (err, data) => {
+        if (err) throw err;
+        console.table(data);
+        init();
+    })
+}
+
 const updateEmployeeRole = () => {
   const queryEmployee = `SELECT * FROM employee`;
   connection.query(queryEmployee, (err, data) => {
@@ -121,10 +132,26 @@ const updateEmployeeRole = () => {
 };
 
 const addEmployee = () => {
-    console.log("Employee has been added");
+    inquirer.prompt([
+        {
+            type: "input", 
+            message: "What is the new employee's first name?",
+            name: "first_name",
+        }, 
+        {
+            type: "input", 
+            message: "What is the new employee's last name?",
+            name: "last_name",  
+        },
+        {
+            
+        }
+    ])
+    console.log("Employee has been added!");
 }
 
-//starts the prompt and provides switch cases to call functions based on user input
+
+//starts the prompt and provides switch cases to call functions based on the user selection
 const init = () => {
   inquirer
     .prompt([
@@ -135,6 +162,7 @@ const init = () => {
           "View All Employees",
           "View All Employees By Department",
           "View All Roles",
+          "View All Departments",
           "Update Employee Role",
           "Add Employee",
           "Quit Employee Tracker",
@@ -154,6 +182,10 @@ const init = () => {
 
         case "View All Roles":
           viewRoles();
+          break;
+
+        case "View All Departments":
+          viewDepartments();
           break;
 
         case "Update Employee Role":
