@@ -11,7 +11,7 @@ INNER JOIN role r ON r.id = e.role_id
 LEFT JOIN department d ON d.id = r.department_id
 LEFT JOIN employee m ON e.manager_id = m.id;
 
--- shows employee by deparment 
+-- shows employee by deparment (hardcoded for now)
 SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
 FROM employee e 
 LEFT JOIN role r on e.role_id = r.id 
@@ -27,5 +27,13 @@ SELECT name AS Departments FROM department;
 -- view roles
 SELECT title AS Roles FROM role;
 
+-- adding a department
+INSERT INTO department (name) VALUE (?);
+
+-- adding a role
+INSERT INTO role (title, salary, department_id) VALUE (?, ?, ?);
+
+-- adding a employee
+INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?, ?, ?, ?);
 
 

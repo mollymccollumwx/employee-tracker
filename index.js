@@ -30,20 +30,6 @@ connection.connect(function (err) {
   init();
 });
 
-// REQUIRED
-
-// Add departments, roles
-
-// BONUS
-
-// * Update employee managers
-
-// * View employees by manager
-
-// * Delete departments, roles, and employees
-
-// * View the total utilized budget of a department -- ie the combined salaries of all employees in that department
-
 //view a table of all employees and their information
 const viewEmployees = () => {
   const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title as Role, d.name AS Department, CONCAT(m.first_name, " ", m.last_name) as Manager
