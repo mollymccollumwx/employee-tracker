@@ -118,6 +118,7 @@ const updateEmployeeRole = () => {
           const queryString = `UPDATE employee SET role_id = ? WHERE id = ?`;
           connection.query(queryString, [role, employee], (err, data) => {
             if (err) throw err;
+            clear();
             init();
           });
         });
@@ -125,6 +126,7 @@ const updateEmployeeRole = () => {
   });
 };
 
+// adding an employee
 const addEmployee = () => {
   const queryEmployee = `SELECT * FROM employee`;
   connection.query(queryEmployee, (err, data) => {
@@ -176,6 +178,7 @@ const addEmployee = () => {
             [first_name, last_name, role, manager],
             (err, data) => {
               if (err) throw err;
+              clear();
               init();
             }
           );
@@ -183,6 +186,95 @@ const addEmployee = () => {
     });
   });
 };
+
+//adding a role
+const addRole = () => {
+    const queryDepartment = `SELECT * FROM department`;
+    connection.query(queryDepartment, (err, data) => {
+      if (err) throw err;
+      const departments = data.map((department) => {
+        return {
+          name: department.name,
+          value: department.id,
+        };
+      });
+      const queryRole = `SELECT * FROM role`;
+      connection.query(queryRole, (err, data) => {
+        if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              message: "What is the title of the new role?",
+              name: "title",
+            },
+            {
+                type: "input",
+                message: "What is the salary of the new role?",
+                name: "salary",
+              },
+            {
+              type: "list",
+              message: "What department is the new role in?",
+              name: "department",
+              choices: departments,
+            },
+          ])
+          .then(({ title, salary, department }) => {
+            const queryString = `INSERT INTO role (title, salary, department_id) VALUE (?, ?, ?)`;
+            connection.query(
+              queryString,
+              [title, salary, department],
+              (err, data) => {
+                if (err) throw err;
+                clear();
+                init();
+              }
+            );
+          });
+      });
+    });
+  };
+
+// adding a department
+  const addDepartment = () => {
+    const queryDepartment = `SELECT * FROM department`;
+    connection.query(queryDepartment, (err, data) => {
+      if (err) throw err;
+        inquirer
+          .prompt([
+            {
+              type: "input",
+              message: "What is the title of the new role?",
+              name: "title",
+            },
+            {
+                type: "input",
+                message: "What is the salary of the new role?",
+                name: "salary",
+              },
+            {
+              type: "list",
+              message: "What department is the new role in?",
+              name: "department",
+              choices: departments,
+            },
+          ])
+          .then(({ title, salary, department }) => {
+            const queryString = `INSERT INTO role (title, salary, department_id) VALUE (?, ?, ?)`;
+            connection.query(
+              queryString,
+              [title, salary, department],
+              (err, data) => {
+                if (err) throw err;
+                clear();
+                init();
+              }
+            );
+          });
+      
+    });
+  };
 
 //starts the prompt and provides switch cases to call functions based on the user selection
 const init = () => {
