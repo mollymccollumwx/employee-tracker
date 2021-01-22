@@ -58,7 +58,9 @@ const viewDepartments = () => {
 
 //view all the roles
 const viewRoles = () => {
-  const queryString = `SELECT title AS Roles FROM role`;
+  const queryString = `SELECT title, salary, department.name
+  FROM role
+  LEFT JOIN department ON role.department_id = department.id`;
   connection.query(queryString, (err, data) => {
     if (err) throw err;
     console.table(data);
