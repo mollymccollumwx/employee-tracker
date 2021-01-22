@@ -16,7 +16,6 @@ const connection = mysql.createConnection({
 
 connection.connect(function (err) {
   if (err) throw err;
-  console.log("connected as id " + connection.threadId + "\n");
   console.log(`
   ____ ____ ____ ____ ____ ____ ____ ____ 
   ||E |||m |||p |||l |||o |||y |||e |||e ||
@@ -245,26 +244,15 @@ const addRole = () => {
           .prompt([
             {
               type: "input",
-              message: "What is the title of the new role?",
-              name: "title",
-            },
-            {
-                type: "input",
-                message: "What is the salary of the new role?",
-                name: "salary",
-              },
-            {
-              type: "list",
-              message: "What department is the new role in?",
+              message: "What is the name of the new department?",
               name: "department",
-              choices: departments,
-            },
+            }, 
           ])
-          .then(({ title, salary, department }) => {
-            const queryString = `INSERT INTO role (title, salary, department_id) VALUE (?, ?, ?)`;
+          .then(({ department }) => {
+            const queryString = `INSERT INTO department (name) VALUE (?)`;
             connection.query(
               queryString,
-              [title, salary, department],
+              [department],
               (err, data) => {
                 if (err) throw err;
                 clear();
