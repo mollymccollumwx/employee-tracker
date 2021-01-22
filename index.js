@@ -59,22 +59,7 @@ const viewEmployees = () => {
   });
 };
 
-//hard coded employees by department
-const viewEmployeesByDepartment = () => {
-  const queryString = `SELECT e.id, CONCAT(e.first_name, " ", e.last_name) as Employee, r.title 
-    FROM employee e 
-    LEFT JOIN role r on e.role_id = r.id 
-    LEFT JOIN department d on r.department_id = d.id 
-    WHERE d.id = 1;`;
-  connection.query(queryString, (err, data) => {
-    if (err) throw err;
-    clear();
-    console.table(data);
-    init();
-  });
-};
-
-//view all the department
+//view all the departments
 const viewDepartments = () => {
   const queryString = `SELECT name AS Departments FROM department`;
   connection.query(queryString, (err, data) => {
@@ -141,60 +126,63 @@ const updateEmployeeRole = () => {
 };
 
 const addEmployee = () => {
-    const queryEmployee = `SELECT * FROM employee`;
-    connection.query(queryEmployee, (err, data) => {
+  const queryEmployee = `SELECT * FROM employee`;
+  connection.query(queryEmployee, (err, data) => {
+    if (err) throw err;
+    const employees = data.map((employee) => {
+      return {
+        name: `${employee.first_name} ${employee.last_name}`,
+        value: employee.id,
+      };
+    });
+    const queryRole = `SELECT * FROM role`;
+    connection.query(queryRole, (err, data) => {
       if (err) throw err;
-      const employees = data.map((employee) => {
+      const roles = data.map((role) => {
         return {
-          name: `${employee.first_name} ${employee.last_name}`,
-          value: employee.id,
+          name: role.title,
+          value: role.id,
         };
       });
-      const queryRole = `SELECT * FROM role`;
-      connection.query(queryRole, (err, data) => {
-        if (err) throw err;
-        const roles = data.map((role) => {
-          return {
-            name: role.title,
-            value: role.id,
-          };
-        });
-        inquirer
-          .prompt([
-            {
-              type: "input",
-              message: "What is the new employee's first name?",
-              name: "first_name",
-            },
-            {
-                type: "input",
-                message: "What is the new employee's last name?",
-                name: "last_name",
-            },
-            {
-                type: "list",
-                message: "What is the new employee's role?",
-                name: "role",
-                choices: roles,
-            },
-            {
-                type: "list",
-                message: "Who is the new employee's manager?",
-                name: "manager",
-                choices: employees,
-            },
-
-          ])
-          .then(({ first_name, last_name, role, manager }) => {
-            const queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`;
-            connection.query(queryString, [first_name, last_name, role, manager], (err, data) => {
+      inquirer
+        .prompt([
+          {
+            type: "input",
+            message: "What is the new employee's first name?",
+            name: "first_name",
+          },
+          {
+            type: "input",
+            message: "What is the new employee's last name?",
+            name: "last_name",
+          },
+          {
+            type: "list",
+            message: "What is the new employee's role?",
+            name: "role",
+            choices: roles,
+          },
+          {
+            type: "list",
+            message: "Who is the new employee's manager?",
+            name: "manager",
+            choices: employees,
+          },
+        ])
+        .then(({ first_name, last_name, role, manager }) => {
+          const queryString = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUE (?, ?, ?, ?)`;
+          connection.query(
+            queryString,
+            [first_name, last_name, role, manager],
+            (err, data) => {
               if (err) throw err;
               init();
-            });
-          });
-      });
+            }
+          );
+        });
     });
-  };
+  });
+};
 
 //starts the prompt and provides switch cases to call functions based on the user selection
 const init = () => {
@@ -205,11 +193,12 @@ const init = () => {
         message: "What would you like to do?",
         choices: [
           "View All Employees",
-          "View All Employees By Department",
           "View All Roles",
           "View All Departments",
           "Update Employee Role",
           "Add Employee",
+          "Add Role",
+          "Add Department",
           "Quit Employee Tracker",
         ],
         name: "userChoice",
@@ -219,10 +208,6 @@ const init = () => {
       switch (userChoice) {
         case "View All Employees":
           viewEmployees();
-          break;
-
-        case "View All Employees By Department":
-          viewEmployeesByDepartment();
           break;
 
         case "View All Roles":
@@ -239,6 +224,14 @@ const init = () => {
 
         case "Add Employee":
           addEmployee();
+          break;
+
+        case "Add Role":
+          addRole();
+          break;
+
+        case "Add Department":
+          addDepartment();
           break;
 
         default:
